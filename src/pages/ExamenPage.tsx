@@ -20,39 +20,56 @@ const ExamenPage = () => {
   const navigate = useNavigate();
 
   const searchStudent = async () => {
-    if (!cin.trim()) {
-      setError('Veuillez saisir votre code CIN');
-      return;
+  if (!cin.trim()) {
+    setError('Veuillez saisir votre code CIN');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  try {
+    // Vérification des variables d'environnement
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Configuration Supabase manquante');
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/etudiant?cin=eq.${cin}`,
-        {
-          headers: {
-            'apikey': import.meta.env.VITE_SUPABASE_API_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_API_KEY}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.length > 0) {
-        setStudent(data[0]);
-      } else {
-        setError('Aucun étudiant trouvé avec ce code CIN');
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/etudiant?cin=eq.${cin}`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
       }
-    } catch (err) {
-      setError('Erreur lors de la recherche. Veuillez réessayer.');
-      console.error('Error fetching student:', err);
-    } finally {
-      setLoading(false);
+    );
+
+    // Vérification du statut de la réponse
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Erreur API:', response.status, errorText);
+      throw new Error(`Erreur ${response.status}: ${errorText}`);
     }
-  };
+
+    const data = await response.json();
+
+    if (data.length > 0) {
+      setStudent(data[0]);
+    } else {
+      setError('Aucun étudiant trouvé avec ce code CIN');
+    }
+  } catch (err) {
+    console.error('Erreur complète:', err);
+    setError(`Erreur lors de la recherche: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
