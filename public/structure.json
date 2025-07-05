@@ -1,0 +1,62 @@
+{
+    "espaces_pedagogiques": {
+        "salle1": "photos-navigation/salle1",
+        "salle2": "photos-navigation/salle2",
+        "salle3": "photos-navigation/salle3",
+        "salle4": "photos-navigation/salle4",
+        "salle5": "photos-navigation/salle5",
+        "salle6": "photos-navigation/salle6",
+        "salle7": "photos-navigation/salle7",
+        "salle8": "photos-navigation/salle8",
+        "salle9": "photos-navigation/salle9",
+        "salle10": "photos-navigation/salle10",
+        "salle11": "photos-navigation/salle11",
+        "salle12": "photos-navigation/salle12",
+        "salle13": "photos-navigation/salle13",
+        "salleInfo1": "photos-navigation/salleInfo1",
+        "salleInfo2": "photos-navigation/salleInfo2",
+        "salleInfo3": "photos-navigation/salleInfo3",
+        "salleInfo4": "photos-navigation/salleInfo4",
+        "salleInfo5": "photos-navigation/salleInfo5",
+        "miniAmphi1": "photos-navigation/miniAmphi1",
+        "miniAmphi2": "photos-navigation/miniAmphi2",
+        "miniAmphi3": "photos-navigation/miniAmphi3",
+        "miniAmphi4": "photos-navigation/miniAmphi4",
+        "miniAmphi5": "photos-navigation/miniAmphi5",
+        "amphiPolyvalent": "photos-navigation/amphiPolyvalent",
+        "amphitheatre": "photos-navigation/amphitheatre",
+        "studioEnregistrement": "photos-navigation/studioEnregistrement"
+    },
+    "laboratoires_et_ateliers": {
+        "atelierRobotique": "photos-navigation/atelierRobotique",
+        "atelierGE": "photos-navigation/atelierGE",
+        "atelierAutomatisme": "photos-navigation/atelierAutomatisme",
+        "atelierGM": "photos-navigation/atelierGM",
+        "fabLab": "photos-navigation/fabLab",
+        "laboRecherche1": "photos-navigation/laboRecherche1",
+        "laboRecherche2": "photos-navigation/laboRecherche2"
+    },
+    "departements": {
+        "depGEG": "photos-navigation/depGEG",
+        "depGE": "photos-navigation/depGE",
+        "depSTAIC": "photos-navigation/depSTAIC",
+        "depGMI": "photos-navigation/depGMI",
+        "depGM": "photos-navigation/depGM"
+    },
+    "espaces_personnel": {
+        "salleProfs": "photos-navigation/salleProfs",
+        "secrétariat": "photos-navigation/secretariat",
+        "direction": "photos-navigation/direction",
+        "salleReunion": "photos-navigation/salleReunion"
+    },
+    "ressources_et_detente": {
+        "salleLecture": "photos-navigation/salleLecture",
+        "bibliotheque": "photos-navigation/bibliotheque",
+        "cafeteria": "photos-navigation/cafeteria",
+        "photocopieuse": "photos-navigation/photocopieuse",
+        "magasin": "photos-navigation/magasin"
+    },
+    "autres": {
+        "sallePolyvalente": "photos-navigation/sallePolyvalente"
+    }
+}
