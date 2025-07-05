@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, User, GraduationCap, ArrowRight } from 'lucide-react';
+import { MapPin, User, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ensetLogo from '../../public/images/enset-logo.png';
 
 const HomePage = () => {
   const containerVariants = {
@@ -41,11 +42,11 @@ const HomePage = () => {
           variants={itemVariants}
         >
           <motion.div 
-            className="inline-flex items-center justify-center w-20 h-20 bg-blue-900 rounded-full mb-6"
+            className="inline-flex items-center justify-center w-20 h-20 bg-blue-900 rounded-full mb-6 mx-auto"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            <GraduationCap className="w-10 h-10 text-white" />
+            <img src={ensetLogo} alt="ENSET Logo" className="w-14 h-14 object-contain" />
           </motion.div>
           <h1 className="text-4xl md:text-5xl font-bold text-blue-900 mb-4">
             Bienvenue à l'ENSET
