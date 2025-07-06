@@ -59,37 +59,6 @@ const HomePage = () => {
 
         {/* Navigation Cards */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Explorer Section */}
-          <motion.div 
-            className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full"
-            variants={itemVariants}
-            whileHover={{ y: -5 }}
-          >
-            <div className="flex flex-col flex-1 p-8">
-              <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6 mx-auto">
-                <MapPin className="w-8 h-8 text-blue-900" />
-              </div>
-              <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">
-                Explorer l'ENSET
-              </h2>
-              <p className="text-gray-600 text-center mb-8 leading-relaxed flex-1">
-                Explorez les salles, amphis, laboratoires, bureaux administratifs et autres installations de l'école.
-              </p>
-              <div className="mt-auto">
-                <Link to="/explorer">
-                  <motion.button 
-                    className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 group"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>Commencer la visite</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </motion.button>
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-
           {/* Exam Section */}
           <motion.div 
             className="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-blue-900 flex flex-col h-full"
@@ -114,6 +83,38 @@ const HomePage = () => {
                     whileTap={{ scale: 0.98 }}
                   >
                     <span>Accéder a ma salle d'examen</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+
+          
+          {/* Explorer Section */}
+          <motion.div 
+            className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full"
+            variants={itemVariants}
+            whileHover={{ y: -5 }}
+          >
+            <div className="flex flex-col flex-1 p-8">
+              <div className="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6 mx-auto">
+                <MapPin className="w-8 h-8 text-blue-900" />
+              </div>
+              <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">
+                Explorer l'ENSET
+              </h2>
+              <p className="text-gray-600 text-center mb-8 leading-relaxed flex-1">
+                Explorez les salles, amphis, laboratoires, bureaux administratifs et autres installations de l'école.
+              </p>
+              <div className="mt-auto">
+                <Link to="/explorer">
+                  <motion.button 
+                    className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 group"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span>Commencer la visite</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
