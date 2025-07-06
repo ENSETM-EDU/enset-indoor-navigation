@@ -27,7 +27,7 @@ const NavigatePage = () => {
       // Try to load images until we find the last one
       while (stepIndex < maxSteps) {
         try {
-          const imagePath = `/photos-navigation/${salle}/${stepIndex}.png`;
+          const imagePath = `/photos-navigation/${salle}/${stepIndex}.jpg`;
           
           // Create a promise to check if image exists
           const imageExists = await new Promise<boolean>((resolve) => {
