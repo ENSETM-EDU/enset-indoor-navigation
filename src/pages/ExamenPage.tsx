@@ -65,7 +65,11 @@ const ExamenPage = () => {
     }
   } catch (err) {
     console.error('Erreur complète:', err);
-    setError(`Erreur lors de la recherche: ${err.message}`);
+    let errorMessage = 'Erreur lors de la recherche';
+    if (err && typeof err === 'object' && 'message' in err) {
+      errorMessage += `: ${(err as { message: string }).message}`;
+    }
+    setError(errorMessage);
   } finally {
     setLoading(false);
   }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, SkipBack, RotateCcw, SkipForward, CheckCircle, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,7 +11,82 @@ const NavigatePage = () => {
   const [loading, setLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [direction, setDirection] = useState(0);
+  
+  // Performance optimizations
+  const [preloadedImages, setPreloadedImages] = useState<Set<number>>(new Set());
+  const [imageCache, setImageCache] = useState<Map<string, HTMLImageElement>>(new Map());
+  const preloadQueueRef = useRef<number[]>([]);
+  const isPreloadingRef = useRef(false);
+  const imageRefs = useRef<Map<number, HTMLImageElement>>(new Map());
 
+  // Memoized image preloader function
+  const preloadImage = useCallback((src: string, index: number): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      if (imageCache.has(src)) {
+        resolve(imageCache.get(src)!);
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        setImageCache(prev => new Map(prev).set(src, img));
+        setPreloadedImages(prev => new Set(prev).add(index));
+        imageRefs.current.set(index, img);
+        resolve(img);
+      };
+      img.onerror = reject;
+      img.src = src;
+      
+      // Add priority hint for modern browsers
+      if ('loading' in img) {
+        img.loading = index === currentStep ? 'eager' : 'lazy';
+      }
+      if ('decoding' in img) {
+        img.decoding = 'async';
+      }
+    });
+  }, [imageCache, currentStep]);
+
+  // Intelligent preloading queue
+  const processPreloadQueue = useCallback(async () => {
+    if (isPreloadingRef.current || preloadQueueRef.current.length === 0) return;
+    
+    isPreloadingRef.current = true;
+    const index = preloadQueueRef.current.shift()!;
+    
+    if (index < images.length && !preloadedImages.has(index)) {
+      try {
+        await preloadImage(images[index], index);
+      } catch (error) {
+        console.warn(`Failed to preload image ${index}:`, error);
+      }
+    }
+    
+    isPreloadingRef.current = false;
+    
+    // Process next item in queue
+    if (preloadQueueRef.current.length > 0) {
+      requestIdleCallback(() => processPreloadQueue());
+    }
+  }, [images, preloadedImages, preloadImage]);
+
+  // Smart preloading strategy
+  const schedulePreload = useCallback((indices: number[]) => {
+    const newIndices = indices.filter(i => 
+      i >= 0 && i < images.length && !preloadedImages.has(i)
+    );
+    
+    preloadQueueRef.current = [...preloadQueueRef.current, ...newIndices];
+    
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => processPreloadQueue());
+    } else {
+      setTimeout(processPreloadQueue, 16);
+    }
+  }, [images.length, preloadedImages, processPreloadQueue]);
+
+  // Enhanced image loading with batch processing
   useEffect(() => {
     if (!salle) return;
 
@@ -19,32 +94,44 @@ const NavigatePage = () => {
       setLoading(true);
       setError(null);
       const imageList: string[] = [];
-      let stepIndex = 0;
-      const maxSteps = 50; // Safety limit to prevent infinite loop
+      let stepIndex = 1;
+      const maxSteps = 50;
+      const batchSize = 5; // Check images in batches
 
-      // Try to load images until we find the last one
-      while (stepIndex < maxSteps) {
-        try {
-          const imagePath = `/photos-navigation/${salle}/${stepIndex}.png`;
-          
-          // Create a promise to check if image exists
-          const imageExists = await new Promise<boolean>((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = imagePath;
-          });
+      // Batch image existence checking
+      const checkImageBatch = async (startIndex: number, endIndex: number) => {
+        const promises = [];
+        for (let i = startIndex; i <= endIndex && i < maxSteps; i++) {
+          const imagePath = `/photos-navigation/${salle}/${i}.png`;
+          promises.push(
+            new Promise<{ index: number; exists: boolean; path: string }>((resolve) => {
+              const img = new Image();
+              img.onload = () => resolve({ index: i, exists: true, path: imagePath });
+              img.onerror = () => resolve({ index: i, exists: false, path: imagePath });
+              img.src = imagePath;
+            })
+          );
+        }
+        return Promise.all(promises);
+      };
 
-          if (imageExists) {
-            imageList.push(imagePath);
-            stepIndex++;
-          } else {
+      // Process images in batches
+      for (let batchStart = 1; batchStart < maxSteps; batchStart += batchSize) {
+        const batchEnd = Math.min(batchStart + batchSize - 1, maxSteps - 1);
+        const results = await checkImageBatch(batchStart, batchEnd);
+        
+        let foundImages = false;
+        for (const result of results.sort((a, b) => a.index - b.index)) {
+          if (result.exists) {
+            imageList.push(result.path);
+            foundImages = true;
+          } else if (foundImages) {
+            // Stop if we hit a gap after finding images
             break;
           }
-        } catch (error) {
-          console.error('Error loading image:', error);
-          break;
         }
+        
+        if (!foundImages && imageList.length > 0) break;
       }
 
       if (imageList.length === 0) {
@@ -59,28 +146,108 @@ const NavigatePage = () => {
     loadImages();
   }, [salle]);
 
-  // Reset image loaded state when step changes
+  // Preload current and adjacent images when step changes
   useEffect(() => {
+    if (images.length === 0) return;
+
     setImageLoaded(false);
+    
+    // Priority preload order: current, next, previous, then look-ahead
+    const preloadOrder = [
+      currentStep,
+      currentStep + 1,
+      currentStep - 1,
+      currentStep + 2,
+      currentStep - 2,
+      currentStep + 3,
+    ];
+
+    schedulePreload(preloadOrder);
+  }, [currentStep, images, schedulePreload]);
+
+  // Memoized navigation functions
+  const nextStep = useCallback(() => {
+    if (currentStep < totalSteps - 1) {
+      setDirection(1);
+      setCurrentStep(prev => prev + 1);
+    }
+  }, [currentStep, totalSteps]);
+
+  const prevStep = useCallback(() => {
+    if (currentStep > 0) {
+      setDirection(-1);
+      setCurrentStep(prev => prev - 1);
+    }
   }, [currentStep]);
 
-  const nextStep = () => {
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const restart = () => {
+  const restart = useCallback(() => {
     setCurrentStep(0);
-  };
+    setDirection(0);
+  }, []);
 
-  const isLastStep = currentStep === totalSteps - 1;
+  // Memoized computed values
+  const isLastStep = useMemo(() => currentStep === totalSteps - 1, [currentStep, totalSteps]);
+  const progressPercentage = useMemo(() => 
+    ((currentStep + 1) / totalSteps) * 100, [currentStep, totalSteps]
+  );
+
+  // Optimized image load handler
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  const handleImageError = useCallback(() => {
+    console.error('Failed to load image:', images[currentStep]);
+    setImageLoaded(true);
+  }, [images, currentStep]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault();
+          prevStep();
+          break;
+        case 'ArrowRight':
+        case ' ':
+          e.preventDefault();
+          nextStep();
+          break;
+        case 'Home':
+          e.preventDefault();
+          restart();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextStep, prevStep, restart]);
+
+  // Optimized animation variants
+  const imageVariants = useMemo(() => ({
+    enter: (direction: number) => ({
+      opacity: 0,
+      scale: 0.98,
+      x: direction > 0 ? 20 : -20,
+    }),
+    center: {
+      opacity: 1,
+      scale: 1,
+      x: 0,
+    },
+    exit: (direction: number) => ({
+      opacity: 0,
+      scale: 1.02,
+      x: direction < 0 ? 20 : -20,
+    }),
+  }), []);
+
+  const transition = useMemo(() => ({
+    duration: 0.3,
+    ease: [0.25, 0.46, 0.45, 0.94], // Custom easing for smoothness
+  }), []);
 
   if (loading) {
     return (
@@ -161,9 +328,10 @@ const NavigatePage = () => {
           <div className="mt-4">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <motion.div 
-                className="bg-blue-900 h-2 rounded-full transition-all duration-500"
+                className="bg-blue-900 h-2 rounded-full"
                 initial={{ width: 0 }}
-                animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+                animate={{ width: `${progressPercentage}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
               />
             </div>
           </div>
@@ -174,21 +342,23 @@ const NavigatePage = () => {
       <div className="flex-1 flex items-center justify-center p-4 pb-32 sm:pb-4">
         <div className="relative max-w-4xl w-full">
           {/* Image */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={currentStep}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.3 }}
+              custom={direction}
+              variants={imageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={transition}
               className="relative"
+              style={{ willChange: 'transform, opacity' }}
             >
               {!imageLoaded && (
-                <div className="absolute inset-0 bg-gray-800 rounded-2xl flex items-center justify-center min-h-[400px]">
+                <div className="absolute inset-0 bg-gray-800 rounded-2xl flex items-center justify-center min-h-[400px] z-10">
                   <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 </div>
               )}
-              
               <img
                 src={images[currentStep]}
                 alt={`Étape ${currentStep + 1} vers ${salle}`}
@@ -196,17 +366,19 @@ const NavigatePage = () => {
                   imageLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 onClick={nextStep}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => {
-                  console.error('Failed to load image:', images[currentStep]);
-                  setImageLoaded(true); // Still show something even if image fails
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                loading={currentStep === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                style={{ 
+                  willChange: 'opacity',
+                  transform: 'translateZ(0)', // Force GPU acceleration
                 }}
               />
-
               {/* Click hint */}
               {imageLoaded && !isLastStep && (
                 <motion.div 
-                  className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm"
+                  className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm pointer-events-none"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1 }}
@@ -220,7 +392,7 @@ const NavigatePage = () => {
           {/* Success Message */}
           {isLastStep && (
             <motion.div 
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-2xl flex items-center justify-center z-20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
@@ -256,7 +428,7 @@ const NavigatePage = () => {
       </div>
 
       {/* Controls */}
-      <div className="fixed bottom-0 left-0 w-full z-20 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg">
+      <div className="fixed bottom-0 left-0 w-full z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg">
         <div className="max-w-md mx-auto flex items-center justify-center space-x-2 px-2 py-3 sm:space-x-4 sm:px-4">
           <motion.button
             onClick={prevStep}
