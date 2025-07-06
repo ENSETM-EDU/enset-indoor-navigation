@@ -204,7 +204,7 @@ const NavigatePage = () => {
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <Link to="/explorer" className="flex-1">
+          <Link to="/" className="flex-1">
             <motion.button 
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
               whileHover={{ scale: 1.02 }}
