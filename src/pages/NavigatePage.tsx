@@ -202,7 +202,7 @@ const NavigatePage = () => {
               <img
                 src={images[currentStep]}
                 alt={`Étape ${currentStep + 1} vers ${salle}`}
-                className={`w-full h-auto rounded-2xl shadow-2xl cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-auto rounded-2xl shadow-2xl cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'} max-h-[60vh] sm:max-h-[70vh] object-contain`}
                 onClick={nextStep}
                 onLoad={() => setImageLoaded(true)}
                 onError={() => {
