@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, SkipBack, RotateCcw, SkipForward, CheckCircle, Home } from 'lucide-react';
+import { ArrowLeft, SkipBack, RotateCcw, SkipForward, CheckCircle, Home, Play, Info, MousePointer, ArrowRight, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NavigatePage = () => {
@@ -12,6 +12,7 @@ const NavigatePage = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [direction, setDirection] = useState(0); // 1 for next, -1 for prev
+  const [showHelper, setShowHelper] = useState(true); // État pour afficher la page d'aide
 
   useEffect(() => {
     if (!salle) return;
@@ -91,7 +92,146 @@ const NavigatePage = () => {
     setCurrentStep(0);
   };
 
+  const startNavigation = () => {
+    setShowHelper(false);
+  };
+
   const isLastStep = currentStep === totalSteps - 1;
+
+  // Page d'aide
+  const HelpPage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <motion.div 
+        className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-8 relative overflow-hidden"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        {/* Decoration */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-100 to-indigo-200 rounded-full translate-y-12 -translate-x-12 opacity-50"></div>
+
+        {/* Header */}
+        <div className="text-center mb-8 relative">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="inline-flex items-center justify-center w-16 h-16 bg-blue-900 rounded-full mb-4"
+          >
+            <Info className="w-8 h-8 text-white" />
+          </motion.div>
+          <motion.h1 
+            className="text-3xl font-bold text-gray-800 mb-2"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            Navigation vers {salle}
+          </motion.h1>
+          <motion.p 
+            className="text-gray-600 text-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            Prêt à être guidé ? Voici comment ça fonctionne
+          </motion.p>
+        </div>
+
+        {/* Instructions */}
+        <div className="space-y-6 mb-8">
+          <motion.div 
+            className="flex items-start space-x-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <Play className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-1">Navigation par étapes</h3>
+              <p className="text-gray-600">Nous allons vous guider jusqu'à votre salle en vous montrant une série d'images réelles du parcours à suivre.</p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="flex items-start space-x-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <MousePointer className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-1">Contrôles intuitifs</h3>
+              <p className="text-gray-600">Cliquez sur l'image ou utilisez le bouton "Suivant" pour avancer. Utilisez "Précédent" pour revenir en arrière.</p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="flex items-start space-x-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-1">Suivi de progression</h3>
+              <p className="text-gray-600">Une barre de progression vous indique votre avancement. Vous pouvez recommencer à tout moment.</p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="flex items-start space-x-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <div className="flex-shrink-0 w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-1">Arrivée à destination</h3>
+              <p className="text-gray-600">Une fois arrivé à la fin du parcours, un message vous confirmera que vous êtes arrivé à destination.</p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link to="/explorer" className="flex-1">
+            <motion.button 
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span>Annuler</span>
+            </motion.button>
+          </Link>
+          
+          <motion.button 
+            onClick={startNavigation}
+            className="flex-1 bg-gradient-to-r from-blue-900 to-blue-800 hover:from-blue-800 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <Play className="w-5 h-5" />
+            <span>Commencer la navigation</span>
+            <ArrowRight className="w-5 h-5" />
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -127,6 +267,11 @@ const NavigatePage = () => {
         </div>
       </div>
     );
+  }
+
+  // Afficher la page d'aide si showHelper est true
+  if (showHelper) {
+    return <HelpPage />;
   }
 
   return (
