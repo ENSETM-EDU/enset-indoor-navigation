@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, User, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { easeOut } from 'framer-motion';
-import ensetLogo from '../../public/images/enset-logo.png';
+import ensetLogo from '/images/enset-logo.png';
 
 const HomePage = () => {
   const containerVariants = {
