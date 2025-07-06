@@ -53,7 +53,7 @@ const HomePage = () => {
             Bienvenue à l'ENSET
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Votre guide intelligent dans l'École Nationale Supérieure d'Enseignement Technique
+            Votre guide de navigation au sein de l'ENSET
           </p>
         </motion.div>
 
@@ -101,7 +101,7 @@ const HomePage = () => {
                 <User className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">
-                Accéder à mon examen
+                Accéder a ma salle d'examen
               </h2>
               <p className="text-gray-600 text-center mb-8 leading-relaxed flex-1">
                 Saisissez votre code CIN pour consulter vos informations et être guidé vers votre salle.
