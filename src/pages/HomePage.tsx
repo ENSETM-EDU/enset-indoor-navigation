@@ -113,7 +113,7 @@ const HomePage = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>Accéder à mon examen</span>
+                    <span>Accéder a ma salle d'examen</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
