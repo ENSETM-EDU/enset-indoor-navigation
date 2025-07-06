@@ -128,7 +128,7 @@ const HomePage = () => {
           variants={itemVariants}
         >
           <p className="text-gray-500 text-sm">
-            École Nationale Supérieure d'Enseignement Technique
+            École Nationale Supérieure de l'Enseignement Technique
           </p>
         </motion.div>
       </motion.div>

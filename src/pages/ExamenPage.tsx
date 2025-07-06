@@ -203,7 +203,7 @@ const ExamenPage = () => {
                   <User className="w-8 h-8 text-green-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  Informations trouvées
+                  Vos informations d'examen
                 </h2>
               </div>
 
