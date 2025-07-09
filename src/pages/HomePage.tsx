@@ -70,7 +70,7 @@ const HomePage = () => {
                 <User className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-blue-900 mb-4 text-center">
-                Accéder a ma salle d'examen
+                Accéder à ma salle d'examen
               </h2>
               <p className="text-gray-600 text-center mb-8 leading-relaxed flex-1">
                 Saisissez votre code CIN pour consulter vos informations et être guidé vers votre salle.
@@ -82,7 +82,7 @@ const HomePage = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span>Accéder a ma salle d'examen</span>
+                    <span>Accéder à ma salle d'examen</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </motion.button>
                 </Link>
