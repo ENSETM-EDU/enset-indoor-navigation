@@ -156,13 +156,19 @@ const ExplorerPage = () => {
                     transition={{ duration: 0.3 }}
                   >
                     <div className="border-t border-gray-200">
-                      {Object.entries(locations).map(([location, path]) => (
-                        <Link 
-                          key={location} 
-                          to={`/navigate/${location}`}
+                      {Object.entries(locations).map(([location, path]) => {
+                        // use the folder name from the structure file rather
+                        // than the displayed location title. This avoids
+                        // issues when the folder name differs from the label
+                        // (for example with accents).
+                        const folder = path.replace(/^photos-navigation\//, '');
+                        return (
+                        <Link
+                          key={location}
+                          to={`/navigate/${folder}`}
                           className="block"
                         >
-                          <motion.div 
+                          <motion.div
                             className="p-4 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-center justify-between group"
                             whileHover={{ x: 5 }}
                           >
@@ -175,7 +181,8 @@ const ExplorerPage = () => {
                             <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-900 transition-colors" />
                           </motion.div>
                         </Link>
-                      ))}
+                      );
+                      })}
                     </div>
                   </motion.div>
                 )}
